@@ -7,9 +7,17 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  job1:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: A simple step
         run: echo "Hello, world!"
+        
+  job2:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Another simple step
+        run: echo "This is another job in the workflow!"
