@@ -1,23 +1,37 @@
-name: A Simple CI Workflow
+name: Cowsay Test
 
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "What should the cow say?"
+        required: false
+        default: "Hello from GitHub Actions! 🐄"
 
 jobs:
-  job1:
+  cowsay:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: A simple step
-        run: echo "Hello, world!"
-        
-  job2:
-    needs: job1
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Another simple step
-        run: echo "This is another job in the workflow!"
+      - name: Set message
+        run: |
+          MSG="${{ github.event.inputs.message }}"
+          if [ -z "$MSG" ]; then
+            MSG="Build from ${{ github.repository }}@${{ github.sha }}"
+          fi
+          echo "MESSAGE=$MSG" >> $GITHUB_ENV
+
+      - name: Install cowsay
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cowsay
+
+      - name: Cowsay it!
+        run: cowsay "$MESSAGE"
+
+      - name: Fortune (optional flair)
+        if: always()
+        run: |
+          sudo apt-get install -y fortune-mod
+          cowsay "$(fortune)"
