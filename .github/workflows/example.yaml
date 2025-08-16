@@ -2,36 +2,18 @@ name: Cowsay Test
 
 on:
   push:
+    branches:
+      - main
   pull_request:
-  workflow_dispatch:
-    inputs:
-      message:
-        description: "What should the cow say?"
-        required: false
-        default: "Hello from GitHub Actions! 🐄"
+    branches:
+      - main
 
 jobs:
   cowsay:
     runs-on: ubuntu-latest
     steps:
-      - name: Set message
-        run: |
-          MSG="${{ github.event.inputs.message }}"
-          if [ -z "$MSG" ]; then
-            MSG="Build from ${{ github.repository }}@${{ github.sha }}"
-          fi
-          echo "MESSAGE=$MSG" >> $GITHUB_ENV
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Install cowsay
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y cowsay
-
-      - name: Cowsay it!
-        run: cowsay "$MESSAGE"
-
-      - name: Fortune (optional flair)
-        if: always()
-        run: |
-          sudo apt-get install -y fortune-mod
-          cowsay "$(fortune)"
+      - name: Run cowsay script
+        run: bash scripts/cowsay.sh
